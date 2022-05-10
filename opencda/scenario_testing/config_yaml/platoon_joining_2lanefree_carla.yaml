@@ -61,7 +61,7 @@ vehicle_base: &vehicle_base
     visualize: false
     activate: false
   behavior: &base_behavior
-    max_speed: 95 # maximum speed, km/h
+    max_speed: 78 # maximum speed, km/h
     tailgate_speed: 105 # when a vehicles needs to be close to another vehicle asap
     speed_lim_dist: 3 # max_speed - speed_lim_dist = target speed
     speed_decrease: 15 # used in car following mode to decrease speed for distance keeping
@@ -126,14 +126,14 @@ carla_traffic_manager:
   random: false # whether to random select vehicles' color and model
   vehicle_list:
     - spawn_position: [-285, 8.3, 0.3, 0, 0, 0]
-    - spawn_position: [-310, 8.3, 0.3, 0, 0, 0]
-    - spawn_position: [-390, 8.3, 0.3, 0, 0, 0]
-    - spawn_position: [-320, 4.8, 0.3, 0, 0, 0]
-      vehicle_speed_perc: -200
-    - spawn_position: [-335, 4.8, 0.3, 0, 0, 0]
-    - spawn_position: [-360, 4.8, 0.3, 0, 0, 0]
-    - spawn_position: [-400, 4.8, 0.3, 0, 0, 0]
-    - spawn_position: [-410, 4.8, 0.3, 0, 0, 0]
+#    - spawn_position: [-310, 8.3, 0.3, 0, 0, 0]
+#    - spawn_position: [-390, 8.3, 0.3, 0, 0, 0]
+#    - spawn_position: [-320, 4.8, 0.3, 0, 0, 0]
+#      vehicle_speed_perc: -200
+#    - spawn_position: [-335, 4.8, 0.3, 0, 0, 0]
+#    - spawn_position: [-360, 4.8, 0.3, 0, 0, 0]
+#    - spawn_position: [-400, 4.8, 0.3, 0, 0, 0]
+#    - spawn_position: [-410, 4.8, 0.3, 0, 0, 0]
 
 # define scenario. In this scenario, a 4-vehicle platoon already exists.
 scenario:
@@ -155,10 +155,16 @@ scenario:
             <<: *platoon_base
           behavior:
             <<: *base_behavior
+            overtake_allowed: false
             local_planner:
               <<: *base_local_planner
               debug_trajectory: true
               debug: false
+          controller:
+            <<: *base_controller
+            args:
+              <<: *control_args
+              max_throttle: 2.0
         - <<: *vehicle_base
           spawn_position: [-360, 8.3, 0.3, 0, 0, 0]
           platoon: # we need to add platoon specific params
@@ -167,21 +173,31 @@ scenario:
             <<: *base_controller
             args:
               <<: *control_args
-              max_throttle: 1.0
+              max_throttle: 0.0
         - <<: *vehicle_base
           spawn_position: [-370, 8.3, 0.3, 0, 0, 0]
           platoon: # we need to add platoon specific params
             <<: *platoon_base
             args:
               <<: *control_args
-              max_throttle: 1.0
+              max_throttle: 0.0
         - <<: *vehicle_base
           spawn_position: [-380, 8.3, 0.3, 0, 0, 0]
           platoon: # we need to add platoon specific params
             <<: *platoon_base
+          behavior:
+            <<: *base_behavior
+            overtake_allowed: true
+            local_planner:
+              <<: *base_local_planner
+              debug_trajectory: true
+              debug: false
+
+          controller:
+            <<: *base_controller
             args:
               <<: *control_args
-              max_throttle: 1.0
+              max_throttle: 2.0
   single_cav_list: # this is for merging vehicle or single cav without v2x
     - <<: *vehicle_base
       spawn_position: [-380, 4.8, 0.3, 0, 0, 0]
@@ -214,4 +230,8 @@ scenario:
           debug_trajectory: true
           debug: false
 
-
+      controller:
+        <<: *base_controller
+        args:
+          <<: *control_args
+          max_throttle: 2.0
